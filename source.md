@@ -26,17 +26,18 @@ Both employers and job seekers can create profiles, including their name, contac
 
 Task Tender offers a variety of categories tailored to the Kenyan market, including:
 
-- Shopping
-- Running errands
-- Cleaning
-- Pet care
-- Babysitting
-- Yard work
-- Tech support
-- Delivery
-- Other
+1. Grocery Shopping
+2. Home Cleaning
+3. Laundry Services
+4. Delivery Services
+5. Babysitting and Childcare
+6. Gardening and Yard Work
+7. Pet Care
+8. Technical Support
+9. Home Repairs
+10. Event Assistance
 
-The categories cover a broad range of errands commonly required in Kenya.
+These categories cover a broad range of errands commonly required in Kenya.
 
 ## Proximity Search
 
@@ -53,10 +54,6 @@ Task Tender supports two payment methods at the moment: Mpesa and bank transfers
 ## Job Opportunities
 
 In addition to errands, Task Tender also provides job opportunities, including temporary, contract, and permanent positions. Job seekers can explore a wide range of employment options in various industries, such as assignments, projects, and developer jobs.
-
-## Platforms
-
-Task Tender is available as a mobile and web-based application, supporting Android and web platforms. Users can access Task Tender from their smartphones or desktops, providing flexibility and convenience.
 
 ## Conclusion
 
