@@ -1,14 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
 const authRoutes = require('./routes/auth');
+const taskRoutes = require('./routes/tasks');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API Routes
+// Register API Endpoints
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // System Health Check
 app.get('/health', (req, res) => {
@@ -22,7 +25,6 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tasktender';
 
-// Connect to MongoDB prior to listening for requests
 mongoose
   .connect(MONGO_URI)
   .then(() => {
