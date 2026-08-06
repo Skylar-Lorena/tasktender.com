@@ -4,14 +4,16 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
+const mpesaRoutes = require('./routes/mpesa');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Register API Endpoints
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/mpesa', mpesaRoutes);
 
 // System Health Check
 app.get('/health', (req, res) => {
