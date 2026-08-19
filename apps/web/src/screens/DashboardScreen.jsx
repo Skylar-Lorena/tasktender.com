@@ -88,15 +88,16 @@ export default function DashboardScreen({ user }) {
 
       {/* Modal Flows */}
       {activeModal === 'CREATE' && (
-        <CreateTaskModal
-          user={user}
-          onClose={() => setActiveModal(null)}
-          onTaskCreated={() => {
-            setActiveModal(null);
-            fetchTasks();
-          }}
-        />
-      )}
+  <CreateTaskModal
+    user={user}
+    onClose={() => setActiveModal(null)}
+    onTaskCreated={(newTask) => {
+      setActiveModal(null);
+      // Prepend the newly created task immediately
+      setTasks((prevTasks) => [newTask, ...prevTasks]);
+    }}
+  />
+)}
 
       {activeModal === 'BID' && selectedTask && (
         <BiddingModal

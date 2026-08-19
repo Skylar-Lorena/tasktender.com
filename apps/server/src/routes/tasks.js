@@ -4,25 +4,29 @@ const Bid = require('../models/Bid');
 
 const router = express.Router();
 
-// 1. Create a New Task (Task Poster)
+// 1. POST /api/tasks
 router.post('/', async (req, res) => {
   try {
-    const { posterId, title, description, category, budget, latitude, longitude, addressName } = req.body;
+    const { posterId, title, description, category, budget, latitude, longitude, addressName, location } = req.body;
 
-    if (!posterId || !title || !description || !category || !budget || !latitude || !longitude) {
-      return res.status(400).json({ error: 'Missing required task fields' });
+    // Resolve coordinates if nested location was sent instead
+    const lat = latitude ?? location?.coordinates?.[1] ?? -1.2921;
+    const lng = longitude ?? location?.coordinates?.[0] ?? 36.8219;
+
+    if (!posterId || !title || !description || !budget) {
+      return res.status(400).json({ error: 'Missing required task fields: posterId, title, description, and budget are required.' });
     }
 
     const newTask = await Task.create({
       posterId,
       title,
       description,
-      category,
-      budget,
+      category: category || 'Errands',
+      budget: Number(budget),
       location: {
         type: 'Point',
-        coordinates: [parseFloat(longitude), parseFloat(latitude)], // [lng, lat] order required for MongoDB
-        addressName: addressName || 'Specified Location'
+        coordinates: [parseFloat(lng), parseFloat(lat)],
+        addressName: addressName || location?.addressName || 'Specified Location'
       }
     });
 
@@ -32,34 +36,16 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 2. Fetch Nearby Tasks within Radius (Tasker)
-router.get('/nearby', async (req, res) => {
+// 2. GET /api/tasks (Fetch all open tasks)
+router.get('/', async (req, res) => {
   try {
-    const { latitude, longitude, maxDistanceKm = 10 } = req.query;
-
-    if (!latitude || !longitude) {
-      return res.status(400).json({ error: 'Latitude and longitude parameters are required' });
-    }
-
-    // Convert kilometers to meters for MongoDB $near query
-    const maxDistanceMeters = parseFloat(maxDistanceKm) * 1000;
-
-    const tasks = await Task.find({
-      status: 'OPEN',
-      location: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(longitude), parseFloat(latitude)]
-          },
-          $maxDistance: maxDistanceMeters
-        }
-      }
-    }).populate('posterId', 'fullName rating');
+    const tasks = await Task.find({ status: 'OPEN' })
+      .sort({ createdAt: -1 })
+      .populate('posterId', 'fullName rating');
 
     return res.json({ success: true, count: tasks.length, tasks });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
