@@ -2,7 +2,7 @@
 
 **Author:** Lorenah M.  
 **Target Market:** Kenya (Nairobi, Mombasa, Kisumu, Nakuru, and other urban hubs)  
-**Document Version:** 2.0 (Refined MVP Architecture)
+**Document Version:** 2.1 (Dual-OTP Handshake & Refined MVP Architecture)
 
 ---
 
@@ -12,30 +12,31 @@
 
 Task Tender is an on-demand, hyper-local task and gig management platform that connects **Task Posters (Employers)** with reliable **Taskers (Job Seekers)** across urban Kenya.
 
-The platform focuses on enabling trusted, secure, and fast hiring for everyday physical errands and short-term work through identity verification, escrow payments, and location-based matching.
+The platform focuses on enabling trusted, secure, and fast hiring for everyday physical errands and short-term work through identity verification, M-Pesa escrow payments, location-based matching, and a cryptographically enforced Dual-OTP verification system.
 
 ---
 
 ## Market Challenges
 
-### Trust Deficit
+### Trust Deficit & Dispute Prevention
 
-Peer-to-peer hiring in Kenya often suffers from fraud and unreliable service providers.
+Peer-to-peer hiring in Kenya often suffers from fraud, false completion claims, unperformed work, and unreliable service providers.
 
 **Solution**
 
 - National ID verification
 - User ratings and reviews
 - Reputation-based trust system
+- **Dual-OTP Verification (Start & End Handshake)** to guarantee both parties are physically present and in agreement before work begins and funds transfer.
 
 ### Payment Insecurity
 
-Taskers risk unpaid work while employers risk paying before work is completed.
+Taskers risk unpaid work while employers risk paying before work is initiated or completed satisfactorily.
 
 **Solution**
 
 - M-Pesa Escrow payment model
-- Funds remain locked until task completion is approved
+- **Dynamic Lock/Release Workflow**: Escrow is triggered upon keying the Start Code and automatically disbursed upon keying the Completion Code.
 
 ### Urban Unemployment
 
@@ -55,7 +56,7 @@ To maximize adoption while minimizing operational complexity, Task Tender is rel
 
 | Phase | Focus |
 |--------|-------|
-| Phase 1 | Hyper-local physical errands with M-Pesa escrow |
+| Phase 1 | Hyper-local physical errands with M-Pesa escrow and Dual-OTP verification |
 | Phase 2 | Skilled service marketplace with enhanced trust and safety |
 | Phase 3 | Professional contract work and enterprise hiring |
 
@@ -65,7 +66,7 @@ To maximize adoption while minimizing operational complexity, Task Tender is rel
 
 ## Objective
 
-Launch a reliable marketplace for simple physical errands with secure payments and proximity-based matching.
+Launch a reliable marketplace for simple physical errands with secure payments, proximity-based matching, and dual verification codes.
 
 ### Core Components
 
@@ -74,7 +75,8 @@ Launch a reliable marketplace for simple physical errands with secure payments a
 | Authentication | Mobile Number + OTP | Primary login using Safaricom and Airtel numbers |
 | Identity Verification | National ID Upload | Manual or semi-automated verification |
 | Task Creation | Fixed Price or Bidding | GPS and Google Maps location tagging |
-| Escrow Payments | M-Pesa STK Push | Funds locked until task completion |
+| Verification Handshake | Start & End Dual-OTP | 6-digit dynamic PINs generated per task |
+| Escrow Payments | M-Pesa STK Push | Triggered at Start Code entry; locked until Completion Code |
 | Proximity Matching | Neighborhood Radius Search | Search within configurable distance (2–10 km) |
 | Real-Time Messaging | In-App Chat | Contact details hidden until bid acceptance |
 
@@ -98,29 +100,22 @@ Expand into skilled services while improving platform trust and dispute manageme
 
 #### Enhanced Identity Verification
 
-Potential integrations include:
-
 - KRA PIN verification
-- eCitizen verification (where applicable)
+- eCitizen integration (where applicable)
 
-#### Dispute Resolution
+#### Dispute Resolution & Code Overrides
 
 Administrative tools for:
 
-- Reviewing disputes
-- Managing incomplete work
-- Escrow mediation
-- Manual payout decisions
+- Managing unreturned/lost OTP codes
+- Escrow mediation and manual payout decisions
+- Auditing location timestamps during start/end code attempts
 
 #### Trust System
 
-User reputation enhancements including:
-
-- Top Rated Tasker
-- Background Checked
-- Completion Rate
-- Response Rate
-- Customer Ratings
+- Top Rated Tasker badge
+- Background Checked indicator
+- OTP Completion Rate & On-time Start metrics
 
 ---
 
@@ -132,194 +127,93 @@ Expand beyond errands into formal short-term employment and enterprise workforce
 
 ### Planned Features
 
-#### Professional Job Board
-
-Support for:
-
-- Temporary contracts
-- Software development projects
-- Remote administrative work
-- Freelance professional services
-
-#### Expanded Payment Methods
-
-Beyond M-Pesa:
-
-- Pesalink
-- Bank Transfers
-- Debit/Credit Cards
-
-#### Business Accounts
-
-Dedicated employer tools for:
-
-- SMEs
-- Event staffing
-- Casual labor management
-- Bulk task creation
+- **Professional Job Board**: Temporary contracts and freelance services
+- **Expanded Payment Methods**: Pesalink, Bank Transfers, Cards
+- **Business Accounts**: SME bulk task creation and casual labor management
 
 ---
 
-# 3. Core MVP Features
+# 3. Core MVP Features & Verification Protocol
 
 ## User Roles
 
-A single account can switch between:
-
-- Task Poster
-- Tasker
-
-No separate registration is required.
+A single account can switch between **Task Poster** and **Tasker** without separate registration.
 
 ---
 
-## Task Poster Features
+## Dual-OTP Handshake Protocol (Start & End Ride Mechanism)
 
-Task Posters can:
+To eliminate counter-integrity issues, false task claims, and payment friction:
 
-- Create tasks
-- Set budgets
-- Add photos
-- Specify deadlines
-- Choose task locations
-- Receive bids
-- Review tasker profiles
-- View ratings and completed work history
-- Fund tasks using M-Pesa Escrow
-- Approve completed work
-- Trigger payment release
+### 1. The Start Code (`START_OTP`)
+- **Generation**: Generated by the system and visible **only to the Task Poster** once a bid is accepted.
+- **Action**: When the Tasker arrives, the Poster shares this code verbally/in person. The Tasker keys it into their app.
+- **Trigger**: Entering the valid Start Code triggers the M-Pesa STK Push prompt to the Poster to deposit task funds directly into Escrow. The task status transitions to `IN_PROGRESS`.
+
+### 2. The Completion Code (`END_OTP`)
+- **Generation**: Generated by the system and visible **only to the Task Poster** while the task is `IN_PROGRESS`.
+- **Action**: Upon finishing the work, the Poster inspects the task and provides the Completion Code to the Tasker.
+- **Trigger**: The Tasker keys the code into their app to mark the task `COMPLETED`. The platform instantly releases Escrow funds to the Tasker's M-Pesa wallet and opens the rating screen for both parties.
 
 ---
 
-## Tasker Features
+# 4. Payment & Verification Architecture
 
-Taskers can:
-
-- Browse nearby tasks
-- View tasks on a map
-- Filter by:
-  - Budget
-  - Distance
-  - Urgency
-- Submit bids
-- Add proposal notes
-- Complete assigned work
-- Request escrow payout
-
----
-
-# 4. Payment Architecture
-
-## M-Pesa Escrow Workflow
-
+## M-Pesa Escrow & Dual-OTP Workflow
 ```
-Poster Creates Task
-        │
-        ▼
-Taskers Submit Bids
-        │
-        ▼
-Poster Accepts a Bid
-        │
-        ▼
-Poster Pays via M-Pesa STK Push
-        │
-        ▼
-Funds Held Securely in Escrow
-        │
-        ▼
-Tasker Completes Work
-        │
-        ▼
-Poster Confirms Completion
-        │
-        ▼
-Escrow Releases Payment
-        │
-        ▼
-Tasker Receives Funds
+Poster Creates Task & Accepts Tasker Bid
+│
+▼
+System Generates START_OTP & END_OTP (Visible to Poster)
+│
+▼
+Tasker Arrives at Location & Asks for Start Code
+│
+▼
+Tasker Enters START_OTP
+│
+▼
+System Triggers M-Pesa STK Push to Poster
+│
+▼
+Poster Enters M-Pesa PIN → Funds Locked in Escrow
+│
+▼
+Task Status Changes to "IN_PROGRESS"
+│
+▼
+Tasker Completes Work → Poster Inspects Errand
+│
+▼
+Poster Shares END_OTP with Tasker
+│
+▼
+Tasker Enters END_OTP
+│
+▼
+System Releases Escrow Funds to Tasker's M-Pesa Wallet
+│
+▼
+Both Parties Rate & Review Task
 ```
-
----
-
 ## Payment Principles
 
-### M-Pesa STK Push
-
-The employer receives an STK Push request after selecting a tasker.
-
-### Escrow
-
-Funds remain securely held until task completion is confirmed.
-
-### Platform Fee
-
-Task Tender deducts a platform commission during payout.
-
-Suggested range:
-
-- 8%–12%
-
-### Instant Withdrawal
-
-Taskers receive payouts directly to their registered M-Pesa numbers.
+- **M-Pesa STK Push Prompt**: Triggered immediately when the Start Code is successfully verified.
+- **Escrow Guarantee**: Funds remain locked safely during the `IN_PROGRESS` phase.
+- **Automated Payout**: Entering the correct Completion Code immediately initiates B2C payout to the Tasker's registered M-Pesa line.
+- **Platform Fee**: Task Tender deducts an 8%–12% commission upon escrow release.
 
 ---
 
-# 5. MVP Categories
+# 5. Success Metrics (KPIs)
 
-The initial launch focuses on high-frequency, low-complexity errands.
-
-| Category | Description |
-|-----------|-------------|
-| Grocery and Market Shopping | Shopping assistance |
-| Light Delivery and Courier | Parcel and item delivery |
-| House Cleaning and Laundry | Home cleaning services |
-| Gardening and Yard Maintenance | Outdoor maintenance |
-| Basic Home Repairs | Minor repair tasks |
-| Pet Care | Walking and feeding pets |
-| Queueing Services | Standing in queues on behalf of clients |
-| Event Support and Logistics | Event setup and assistance |
-
----
-
-# 6. Success Metrics (KPIs)
-
-## Liquidity / Match Rate
-
-Percentage of posted tasks matched with a tasker within 30 minutes.
-
----
-
-## Escrow Conversion Rate
-
-Percentage of accepted bids that successfully convert into funded M-Pesa escrow transactions.
-
----
-
-## Task Completion Rate
-
-Percentage of funded tasks completed without disputes.
-
----
-
-## Trust Index
-
-Measured using:
-
-- Average user rating
-- Repeat hiring rate
-- Successful completion percentage
-- Customer satisfaction
+- **Verification Accuracy**: % of tasks started and completed via Dual-OTP without manual intervention.
+- **Escrow Conversion Rate**: % of accepted bids converted into funded escrow via Start Code verification.
+- **Dispute Reduction Rate**: % reduction in unpaid work or unperformed task complaints.
+- **Liquidity / Match Rate**: Tasks matched and started within 30 minutes.
 
 ---
 
 # Vision
 
-Task Tender aims to become Kenya's most trusted hyper-local marketplace for errands, gigs, and short-term work by combining:
-
-- Secure identity verification
-- M-Pesa-first escrow payments
-- Fast proximity-based matching
-- Transparent reputation systems
-- A scalable architecture that evolves from everyday errands to enterprise workforce management
+Task Tender aims to be Kenya's most trusted hyper-local marketplace by combining identity verification, M-Pesa escrow payments, location-based matching, and cryptographically enforced Dual-OTP start and completion handshakes.
